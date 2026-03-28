@@ -1,0 +1,43 @@
+# Clippy Pedantic 設定
+# https://rust-lang.github.io/rust-clippy/master/index.html
+
+# 関数の認知的複雑度の上限
+cognitive-complexity-threshold = 15
+
+# 関数パラメータ数の上限
+too-many-arguments-threshold = 8
+
+# 型の複雑度上限
+type-complexity-threshold = 250
+
+# 構造体のフィールド数上限
+max-struct-bools = 3
+
+# enum バリアントのサイズ差の上限（bytes）
+enum-variant-size-threshold = 200
+
+# doc コメントの行幅
+doc-valid-idents = [
+    "GitHub",
+    "GitLab",
+    "JavaScript",
+    "TypeScript",
+    "PostgreSQL",
+    "RabbitMQ",
+    "OAuth",
+    "OIDC",
+    "gRPC",
+    "API",
+]
+
+# msrv（Minimum Supported Rust Version）
+msrv = "1.82.0"
+
+# 許容される単一文字のバインディング名
+allowed-idents-below-min-chars = ["x", "y", "z", "i", "j", "k", "n", "_"]
+
+# trivially-copy-pass-by-ref の閾値（bytes）
+trivial-copy-size-limit = 8
+
+# pass-by-value の閾値（bytes）
+pass-by-value-size-limit = 256
