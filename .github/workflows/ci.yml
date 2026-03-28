@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust:
+    name: Rust (WASM)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wasm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            wasm/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/Cargo.lock') }}
+      - name: Format check
+        run: cargo fmt -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+      - name: Test
+        run: cargo test -- --nocapture
+      - name: WASM build
+        run: |
+          cargo install wasm-pack || true
+          wasm-pack build --target web --out-dir ../frontend/src/wasm-pkg
+
+  frontend:
+    name: Frontend (TypeScript/React)
+    runs-on: ubuntu-latest
+    needs: rust
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build WASM
+        run: |
+          cargo install wasm-pack || true
+          cd ../wasm && wasm-pack build --target web --out-dir ../frontend/src/wasm-pkg
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npx oxlint src/
+      - name: Type check
+        run: npx tsc -b
+      - name: Test
+        run: npx vitest run
+      - name: Build
+        run: npm run build

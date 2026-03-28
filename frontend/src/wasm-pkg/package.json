@@ -1,0 +1,15 @@
+{
+  "name": "stitch-studio-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "stitch_studio_wasm_bg.wasm",
+    "stitch_studio_wasm.js",
+    "stitch_studio_wasm.d.ts"
+  ],
+  "main": "stitch_studio_wasm.js",
+  "types": "stitch_studio_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
