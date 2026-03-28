@@ -1,13 +1,7 @@
 import { useReducer, useCallback } from "react";
-import type {
-  Color,
-  EditorAction,
-  EditorState,
-  GridData,
-  Tool,
-} from "../types/grid";
+import type { Color, EditorAction, EditorState, GridData, Tool } from "../types/grid";
 
-function colorsMatch(a: Color, b: Color): boolean {
+export function colorsMatch(a: Color, b: Color): boolean {
   return a.r === b.r && a.g === b.g && a.b === b.b;
 }
 
@@ -20,7 +14,7 @@ function cloneGrid(grid: GridData): GridData {
   };
 }
 
-function floodFill(
+export function floodFill(
   grid: GridData,
   startX: number,
   startY: number,
@@ -76,7 +70,7 @@ function pushHistory(state: EditorState, newGrid: GridData): EditorState {
   };
 }
 
-function editorReducer(state: EditorState, action: EditorAction): EditorState {
+export function editorReducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
     case "SET_GRID": {
       const grid = cloneGrid(action.grid);
@@ -155,7 +149,7 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
   }
 }
 
-const initialState: EditorState = {
+export const initialState: EditorState = {
   grid: null,
   selectedColor: { r: 0, g: 0, b: 0 },
   tool: "pen",
@@ -166,33 +160,21 @@ const initialState: EditorState = {
 export function useEditorState() {
   const [state, dispatch] = useReducer(editorReducer, initialState);
 
-  const setGrid = useCallback(
-    (grid: GridData) => dispatch({ type: "SET_GRID", grid }),
-    [],
-  );
+  const setGrid = useCallback((grid: GridData) => dispatch({ type: "SET_GRID", grid }), []);
   const setCell = useCallback(
-    (x: number, y: number, color: Color) =>
-      dispatch({ type: "SET_CELL", x, y, color }),
+    (x: number, y: number, color: Color) => dispatch({ type: "SET_CELL", x, y, color }),
     [],
   );
   const doFloodFill = useCallback(
-    (x: number, y: number, color: Color) =>
-      dispatch({ type: "FLOOD_FILL", x, y, color }),
+    (x: number, y: number, color: Color) => dispatch({ type: "FLOOD_FILL", x, y, color }),
     [],
   );
-  const setTool = useCallback(
-    (tool: Tool) => dispatch({ type: "SET_TOOL", tool }),
-    [],
-  );
-  const setColor = useCallback(
-    (color: Color) => dispatch({ type: "SET_COLOR", color }),
-    [],
-  );
+  const setTool = useCallback((tool: Tool) => dispatch({ type: "SET_TOOL", tool }), []);
+  const setColor = useCallback((color: Color) => dispatch({ type: "SET_COLOR", color }), []);
   const undo = useCallback(() => dispatch({ type: "UNDO" }), []);
   const redo = useCallback(() => dispatch({ type: "REDO" }), []);
   const newGrid = useCallback(
-    (width: number, height: number) =>
-      dispatch({ type: "NEW_GRID", width, height }),
+    (width: number, height: number) => dispatch({ type: "NEW_GRID", width, height }),
     [],
   );
 

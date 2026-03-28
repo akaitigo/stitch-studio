@@ -27,22 +27,27 @@ echo "=== Session Startup ==="
 [ -d ".git" ] || { echo "ERROR: Not in git repository"; exit 1; }
 
 # 1.5. 言語検出と必須ツールの自動インストール
+# モノレポ対応: ルートおよびサブディレクトリのファイルを検出
+has_file() {
+  [ -f "$1" ] || ls -d */"$1" &>/dev/null 2>&1
+}
+
 echo "=== Tool auto-install ==="
-if [ -f "go.mod" ]; then
+if has_file "go.mod"; then
   echo "Detected: Go"
   command -v golangci-lint &>/dev/null || { echo "Installing golangci-lint..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest 2>/dev/null || echo "WARN: golangci-lint install failed"; }
   command -v gofumpt &>/dev/null || { echo "Installing gofumpt..."; go install mvdan.cc/gofumpt@latest 2>/dev/null || echo "WARN: gofumpt install failed"; }
 fi
-if [ -f "pyproject.toml" ]; then
+if has_file "pyproject.toml"; then
   echo "Detected: Python"
   command -v ruff &>/dev/null || { echo "Installing ruff..."; pip install ruff 2>/dev/null || echo "WARN: ruff install failed"; }
 fi
-if [ -f "package.json" ]; then
+if has_file "package.json"; then
   echo "Detected: TypeScript/JavaScript"
   command -v oxlint &>/dev/null || { echo "Installing oxlint..."; npm install -g oxlint 2>/dev/null || echo "WARN: oxlint install failed"; }
   npx biome --version &>/dev/null 2>&1 || { echo "Installing biome..."; npm install -g @biomejs/biome 2>/dev/null || echo "WARN: biome install failed"; }
 fi
-if [ -f "build.gradle.kts" ] || [ -f "build.gradle" ]; then
+if has_file "build.gradle.kts" || has_file "build.gradle"; then
   echo "Detected: Kotlin/JVM"
   if [ -f "gradlew" ]; then
     chmod +x gradlew
@@ -52,7 +57,7 @@ if [ -f "build.gradle.kts" ] || [ -f "build.gradle" ]; then
     echo "WARN: gradlew not found. Run 'gradle wrapper' to generate."
   fi
 fi
-if [ -f "Cargo.toml" ]; then
+if has_file "Cargo.toml"; then
   echo "Detected: Rust"
   rustup component add clippy rustfmt 2>/dev/null || echo "WARN: rustup component install failed"
 fi

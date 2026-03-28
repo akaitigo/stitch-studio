@@ -12,12 +12,7 @@ const CELL_SIZE = 20;
 const GRID_LINE_COLOR = "#ccc";
 const GRID_BORDER_COLOR = "#999";
 
-export function GridCanvas({
-  grid,
-  selectedColor,
-  tool,
-  onCellClick,
-}: GridCanvasProps) {
+export function GridCanvas({ grid, selectedColor, tool, onCellClick }: GridCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState(1);
   const [isPainting, setIsPainting] = useState(false);
@@ -119,13 +114,9 @@ export function GridCanvas({
   }, []);
 
   const zoomIn = useCallback(() => setZoom((z) => Math.min(z + 0.25, 3)), []);
-  const zoomOut = useCallback(
-    () => setZoom((z) => Math.max(z - 0.25, 0.25)),
-    [],
-  );
+  const zoomOut = useCallback(() => setZoom((z) => Math.max(z - 0.25, 0.25)), []);
 
-  const cursorStyle =
-    tool === "fill" ? "crosshair" : tool === "eraser" ? "cell" : "pointer";
+  const cursorStyle = tool === "fill" ? "crosshair" : tool === "eraser" ? "cell" : "pointer";
 
   return (
     <div className="grid-canvas-container">
