@@ -20,7 +20,7 @@ jobs:
           targets: wasm32-unknown-unknown
           components: clippy, rustfmt
       - name: Cache cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
@@ -34,7 +34,7 @@ jobs:
       - name: Test
         run: cargo test -- --nocapture
       - name: Cache wasm-pack
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cargo/bin/wasm-pack
           key: ${{ runner.os }}-wasm-pack
@@ -61,7 +61,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
       - name: Cache wasm-pack
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cargo/bin/wasm-pack
           key: ${{ runner.os }}-wasm-pack
