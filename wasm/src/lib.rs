@@ -19,10 +19,10 @@ pub struct GridData {
 
 /// Compute squared Euclidean distance between two RGB colors
 fn color_distance_sq(a: &GridCell, b: &GridCell) -> u32 {
-    let dr = i32::from(a.r) - i32::from(b.r);
-    let dg = i32::from(a.g) - i32::from(b.g);
-    let db = i32::from(a.b) - i32::from(b.b);
-    (dr * dr + dg * dg + db * db) as u32
+    let dr = u32::from(a.r.abs_diff(b.r));
+    let dg = u32::from(a.g.abs_diff(b.g));
+    let db = u32::from(a.b.abs_diff(b.b));
+    dr * dr + dg * dg + db * db
 }
 
 /// Find the index of the nearest color in the palette
@@ -150,9 +150,9 @@ fn average_color(colors: &[GridCell]) -> GridCell {
         b_sum += u64::from(c.b);
     }
     GridCell {
-        r: (r_sum / len) as u8,
-        g: (g_sum / len) as u8,
-        b: (b_sum / len) as u8,
+        r: u8::try_from(r_sum / len).unwrap_or(0),
+        g: u8::try_from(g_sum / len).unwrap_or(0),
+        b: u8::try_from(b_sum / len).unwrap_or(0),
     }
 }
 
@@ -224,9 +224,9 @@ fn convert_image_internal(
 
             if count > 0 {
                 sampled_colors.push(GridCell {
-                    r: (r_sum / count) as u8,
-                    g: (g_sum / count) as u8,
-                    b: (b_sum / count) as u8,
+                    r: u8::try_from(r_sum / count).unwrap_or(0),
+                    g: u8::try_from(g_sum / count).unwrap_or(0),
+                    b: u8::try_from(b_sum / count).unwrap_or(0),
                 });
             } else {
                 sampled_colors.push(GridCell { r: 0, g: 0, b: 0 });
