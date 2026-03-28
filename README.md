@@ -25,7 +25,7 @@ Cross-stitch pattern editor powered by Rust/WASM. Convert images into stitch pat
 
 ```bash
 # Clone
-git clone https://github.com/akaitigo/stitch-studio.git
+git clone git@github.com:akaitigo/stitch-studio.git
 cd stitch-studio
 
 # Add WASM target
