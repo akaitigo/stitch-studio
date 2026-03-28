@@ -26,12 +26,26 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    const MAX_DIMENSION = 4096;
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 10 MB.`);
+      return;
+    }
+
     setError(null);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
 
     const img = new Image();
     img.onload = () => {
+      if (img.width > MAX_DIMENSION || img.height > MAX_DIMENSION) {
+        setError(`Image dimensions (${img.width}x${img.height}) exceed maximum of ${MAX_DIMENSION}x${MAX_DIMENSION}.`);
+        URL.revokeObjectURL(url);
+        return;
+      }
+
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
       canvas.height = img.height;
