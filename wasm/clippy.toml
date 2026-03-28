@@ -31,7 +31,7 @@ doc-valid-idents = [
 ]
 
 # msrv（Minimum Supported Rust Version）
-msrv = "1.82.0"
+msrv = "1.85.0"
 
 # 許容される単一文字のバインディング名
 allowed-idents-below-min-chars = ["x", "y", "z", "i", "j", "k", "n", "_"]

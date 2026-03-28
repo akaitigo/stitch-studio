@@ -1,7 +1,9 @@
 # Rust
 wasm/target/
 wasm/pkg/
-wasm/Cargo.lock
+
+# Tool version manager
+mise.toml
 
 # Node
 frontend/node_modules/

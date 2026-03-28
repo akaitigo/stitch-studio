@@ -3,23 +3,15 @@ import { GridCanvas } from "./components/GridCanvas";
 import { ColorPalette } from "./components/ColorPalette";
 import { ThreadList } from "./components/ThreadList";
 import { ImportDialog } from "./components/ImportDialog";
+import { Modal } from "./components/Modal";
 import { useEditorState } from "./hooks/useEditorState";
 import { generateShoppingList } from "./utils/dmc-colors";
 import type { GridData } from "./types/grid";
 import "./App.css";
 
 function App() {
-  const {
-    state,
-    setGrid,
-    setCell,
-    doFloodFill,
-    setTool,
-    setColor,
-    undo,
-    redo,
-    newGrid,
-  } = useEditorState();
+  const { state, setGrid, setCell, doFloodFill, setTool, setColor, undo, redo, newGrid } =
+    useEditorState();
 
   const [showImport, setShowImport] = useState(false);
   const [showNewGrid, setShowNewGrid] = useState(false);
@@ -47,10 +39,18 @@ function App() {
     [setGrid],
   );
 
+  const clampGridSize = useCallback((value: number): number => {
+    if (Number.isNaN(value) || value < 1) return 1;
+    if (value > 200) return 200;
+    return Math.floor(value);
+  }, []);
+
   const handleNewGrid = useCallback(() => {
-    newGrid(newWidth, newHeight);
+    const w = clampGridSize(newWidth);
+    const h = clampGridSize(newHeight);
+    newGrid(w, h);
     setShowNewGrid(false);
-  }, [newGrid, newWidth, newHeight]);
+  }, [newGrid, newWidth, newHeight, clampGridSize]);
 
   const threadUsages = useMemo(() => {
     if (!state.grid) return [];
@@ -70,10 +70,7 @@ function App() {
       <header className="app-header">
         <h1>stitch-studio</h1>
         <nav className="app-nav">
-          <button
-            type="button"
-            onClick={() => setShowNewGrid(true)}
-          >
+          <button type="button" onClick={() => setShowNewGrid(true)}>
             New
           </button>
           <button type="button" onClick={() => setShowImport(true)}>
@@ -113,22 +110,12 @@ function App() {
         ) : (
           <div className="welcome">
             <h2>Welcome to stitch-studio</h2>
-            <p>
-              Create cross-stitch patterns from images or start from scratch.
-            </p>
+            <p>Create cross-stitch patterns from images or start from scratch.</p>
             <div className="welcome-actions">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => setShowNewGrid(true)}
-              >
+              <button type="button" className="btn-primary" onClick={() => setShowNewGrid(true)}>
                 New Grid
               </button>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => setShowImport(true)}
-              >
+              <button type="button" className="btn-primary" onClick={() => setShowImport(true)}>
                 Import Image
               </button>
             </div>
@@ -136,86 +123,44 @@ function App() {
         )}
       </main>
 
-      {showImport && (
-        <ImportDialog
-          onImport={handleImport}
-          onClose={() => setShowImport(false)}
-        />
-      )}
+      {showImport && <ImportDialog onImport={handleImport} onClose={() => setShowImport(false)} />}
 
       {showNewGrid && (
-        <div
-          className="modal-overlay"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            className="modal-content"
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: 8,
-              padding: 24,
-              minWidth: 300,
-            }}
-          >
-            <h2>New Grid</h2>
-            <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-              <label>
-                Width:
-                <input
-                  type="number"
-                  value={newWidth}
-                  onChange={(e) => setNewWidth(Number(e.target.value))}
-                  min={1}
-                  max={200}
-                  style={{ width: 60, marginLeft: 8 }}
-                />
-              </label>
-              <label>
-                Height:
-                <input
-                  type="number"
-                  value={newHeight}
-                  onChange={(e) => setNewHeight(Number(e.target.value))}
-                  min={1}
-                  max={200}
-                  style={{ width: 60, marginLeft: 8 }}
-                />
-              </label>
-            </div>
-            <div
-              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
-            >
-              <button type="button" onClick={() => setShowNewGrid(false)}>
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleNewGrid}
-                style={{
-                  backgroundColor: "#4CAF50",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 16px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Create
-              </button>
-            </div>
+        <Modal onClose={() => setShowNewGrid(false)}>
+          <h2>New Grid</h2>
+          <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+            <label>
+              Width:
+              <input
+                type="number"
+                value={newWidth}
+                onChange={(e) => setNewWidth(clampGridSize(Number(e.target.value)))}
+                min={1}
+                max={200}
+                style={{ width: 60, marginLeft: 8 }}
+              />
+            </label>
+            <label>
+              Height:
+              <input
+                type="number"
+                value={newHeight}
+                onChange={(e) => setNewHeight(clampGridSize(Number(e.target.value)))}
+                min={1}
+                max={200}
+                style={{ width: 60, marginLeft: 8 }}
+              />
+            </label>
           </div>
-        </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setShowNewGrid(false)}>
+              Cancel
+            </button>
+            <button type="button" className="btn-primary" onClick={handleNewGrid}>
+              Create
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );
