@@ -42,6 +42,9 @@ jobs:
         run: |
           command -v wasm-pack || cargo install wasm-pack
           wasm-pack build --target web --out-dir ../frontend/src/wasm-pkg
+      - name: Verify WASM artifacts
+        run: |
+          test -f ../frontend/src/wasm-pkg/stitch_studio_wasm_bg.wasm || { echo "ERROR: .wasm file not found"; exit 1; }
 
   frontend:
     name: Frontend (TypeScript/React)
