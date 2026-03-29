@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from "react";
-import { isGridData } from "../types/grid";
+import { useCallback, useRef, useState } from "react";
 import type { GridData } from "../types/grid";
+import { isGridData } from "../types/grid";
 import { Modal } from "./Modal";
 
 interface ImportDialogProps {
@@ -41,7 +41,9 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
     const img = new Image();
     img.onload = () => {
       if (img.width > MAX_DIMENSION || img.height > MAX_DIMENSION) {
-        setError(`Image dimensions (${img.width}x${img.height}) exceed maximum of ${MAX_DIMENSION}x${MAX_DIMENSION}.`);
+        setError(
+          `Image dimensions (${img.width}x${img.height}) exceed maximum of ${MAX_DIMENSION}x${MAX_DIMENSION}.`,
+        );
         URL.revokeObjectURL(url);
         return;
       }

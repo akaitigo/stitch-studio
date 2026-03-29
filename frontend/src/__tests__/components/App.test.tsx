@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, fireEvent, cleanup, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../../App";
 
 // Mock canvas context for GridCanvas

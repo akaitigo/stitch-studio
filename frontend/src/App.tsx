@@ -1,12 +1,12 @@
-import { useState, useCallback, useMemo } from "react";
-import { GridCanvas } from "./components/GridCanvas";
+import { useCallback, useMemo, useState } from "react";
 import { ColorPalette } from "./components/ColorPalette";
-import { ThreadList } from "./components/ThreadList";
+import { GridCanvas } from "./components/GridCanvas";
 import { ImportDialog } from "./components/ImportDialog";
 import { Modal } from "./components/Modal";
+import { ThreadList } from "./components/ThreadList";
 import { useEditorState } from "./hooks/useEditorState";
-import { generateShoppingList } from "./utils/dmc-colors";
 import type { GridData } from "./types/grid";
+import { generateShoppingList } from "./utils/dmc-colors";
 import "./App.css";
 
 function App() {
