@@ -125,6 +125,7 @@ export interface ThreadUsage {
 
 /** Generate a shopping list from grid data */
 export function generateShoppingList(cells: Color[]): ThreadUsage[] {
+  // Step 1: Count by RGB
   const colorCounts = new Map<string, { color: Color; count: number }>();
 
   for (const cell of cells) {
@@ -137,13 +138,25 @@ export function generateShoppingList(cells: Color[]): ThreadUsage[] {
     }
   }
 
-  const usages: ThreadUsage[] = [];
+  // Step 2: Map to DMC and aggregate by DMC code
+  const dmcCounts = new Map<string, { thread: DmcThread; count: number }>();
   for (const { color, count } of colorCounts.values()) {
     // Skip white/background cells (all 255)
     if (color.r === 255 && color.g === 255 && color.b === 255) {
       continue;
     }
     const thread = findNearestDmc(color);
+    const existing = dmcCounts.get(thread.code);
+    if (existing) {
+      existing.count += count;
+    } else {
+      dmcCounts.set(thread.code, { thread, count });
+    }
+  }
+
+  // Step 3: Build usage list
+  const usages: ThreadUsage[] = [];
+  for (const { thread, count } of dmcCounts.values()) {
     usages.push({
       thread,
       stitchCount: count,

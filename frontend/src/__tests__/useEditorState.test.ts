@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { editorReducer, floodFill, colorsMatch, initialState } from "../hooks/useEditorState";
+import { describe, expect, it } from "vitest";
+import { colorsMatch, editorReducer, floodFill, initialState } from "../hooks/useEditorState";
 import type { Color, EditorState, GridData } from "../types/grid";
 
 function makeGrid(
@@ -256,6 +256,27 @@ describe("editorReducer", () => {
       // Redo should do nothing (redo history was discarded)
       const afterRedo = editorReducer(state, { type: "REDO" });
       expect(afterRedo).toBe(state);
+    });
+  });
+
+  describe("palette sync", () => {
+    it("SET_CELL adds new color to palette", () => {
+      const state = stateWithGrid(makeGrid(2, 2));
+      const red = { r: 255, g: 0, b: 0 };
+      const next = editorReducer(state, { type: "SET_CELL", x: 0, y: 0, color: red });
+      const palette = next.grid?.palette ?? [];
+      const hasRed = palette.some((c) => c.r === 255 && c.g === 0 && c.b === 0);
+      expect(hasRed).toBe(true);
+    });
+
+    it("FLOOD_FILL updates palette to reflect new colors", () => {
+      const state = stateWithGrid(makeGrid(2, 2));
+      const green = { r: 0, g: 255, b: 0 };
+      const next = editorReducer(state, { type: "FLOOD_FILL", x: 0, y: 0, color: green });
+      const palette = next.grid?.palette ?? [];
+      // All cells are now green, palette should contain only green
+      expect(palette).toHaveLength(1);
+      expect(palette[0]).toEqual(green);
     });
   });
 

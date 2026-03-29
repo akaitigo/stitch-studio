@@ -71,6 +71,8 @@ jobs:
           cd ../wasm && wasm-pack build --target web --out-dir ../frontend/src/wasm-pkg
       - name: Install dependencies
         run: npm ci
+      - name: Biome CI
+        run: npx biome ci src/
       - name: Lint
         run: npx oxlint src/
       - name: Type check

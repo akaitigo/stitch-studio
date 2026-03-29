@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Color, GridData, Tool } from "../types/grid";
 
 interface GridCanvasProps {

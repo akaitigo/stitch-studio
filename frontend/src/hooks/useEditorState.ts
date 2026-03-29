@@ -1,10 +1,13 @@
-import { useReducer, useCallback } from "react";
+import { useCallback, useReducer } from "react";
 import type { Color, EditorAction, EditorState, GridData, Tool } from "../types/grid";
 
 export function colorsMatch(a: Color, b: Color): boolean {
   return a.r === b.r && a.g === b.g && a.b === b.b;
 }
 
+// Performance note: cloneGrid does a full deep copy on every action.
+// For grids up to 200x200 (40,000 cells) this is fast enough.
+// If larger grids are needed, consider Immer or structural sharing.
 function cloneGrid(grid: GridData): GridData {
   return {
     width: grid.width,
@@ -12,6 +15,20 @@ function cloneGrid(grid: GridData): GridData {
     cells: grid.cells.map((c) => ({ ...c })),
     palette: grid.palette.map((c) => ({ ...c })),
   };
+}
+
+/** Rebuild palette from unique colors in the grid cells */
+function rebuildPalette(grid: GridData): void {
+  const seen = new Set<string>();
+  const palette: Color[] = [];
+  for (const cell of grid.cells) {
+    const key = `${cell.r}-${cell.g}-${cell.b}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      palette.push({ ...cell });
+    }
+  }
+  grid.palette = palette;
 }
 
 export function floodFill(
@@ -89,12 +106,14 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       if (idx >= 0 && idx < newGrid.cells.length) {
         newGrid.cells[idx] = { ...action.color };
       }
+      rebuildPalette(newGrid);
       return pushHistory(state, newGrid);
     }
 
     case "FLOOD_FILL": {
       if (!state.grid) return state;
       const filled = floodFill(state.grid, action.x, action.y, action.color);
+      rebuildPalette(filled);
       return pushHistory(state, filled);
     }
 

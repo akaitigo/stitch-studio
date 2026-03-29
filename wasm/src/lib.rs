@@ -215,6 +215,11 @@ fn convert_image_internal(
             for py in y_start..y_end {
                 for px in x_start..x_end {
                     let idx = ((py * img_width + px) * 4) as usize;
+                    let alpha = rgba_data[idx + 3];
+                    // Skip transparent pixels (alpha < 128), treat as background
+                    if alpha < 128 {
+                        continue;
+                    }
                     r_sum += u64::from(rgba_data[idx]);
                     g_sum += u64::from(rgba_data[idx + 1]);
                     b_sum += u64::from(rgba_data[idx + 2]);
@@ -229,7 +234,8 @@ fn convert_image_internal(
                     b: u8::try_from(b_sum / count).unwrap_or(0),
                 });
             } else {
-                sampled_colors.push(GridCell { r: 0, g: 0, b: 0 });
+                // All pixels in this block are transparent -> white background
+                sampled_colors.push(GridCell { r: 255, g: 255, b: 255 });
             }
         }
     }
@@ -327,6 +333,32 @@ mod tests {
         let rgba = vec![0u8; 10]; // wrong size
         let result = convert_image_internal(&rgba, 2, 2, 1, 1, 4);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_convert_image_transparent_pixels_become_white() {
+        // 2x1 image: one opaque red pixel, one fully transparent pixel
+        let rgba = vec![
+            255, 0, 0, 255, // red, opaque
+            0, 0, 0, 0, // transparent
+        ];
+        let result = convert_image_internal(&rgba, 2, 1, 2, 1, 4);
+        assert!(result.is_ok());
+        let grid = result.ok().unwrap_or_else(|| GridData {
+            width: 0,
+            height: 0,
+            cells: vec![],
+            palette: vec![],
+        });
+        assert_eq!(grid.cells.len(), 2);
+        // First cell: red
+        assert_eq!(grid.cells[0].r, 255);
+        assert_eq!(grid.cells[0].g, 0);
+        assert_eq!(grid.cells[0].b, 0);
+        // Second cell: white (transparent -> background)
+        assert_eq!(grid.cells[1].r, 255);
+        assert_eq!(grid.cells[1].g, 255);
+        assert_eq!(grid.cells[1].b, 255);
     }
 
     #[test]

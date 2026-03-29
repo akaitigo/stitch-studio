@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  findNearestDmc,
   calculateSkeins,
-  generateShoppingList,
   colorDistanceSq,
+  findNearestDmc,
+  generateShoppingList,
 } from "../utils/dmc-colors";
 
 describe("colorDistanceSq", () => {
@@ -86,5 +86,23 @@ describe("generateShoppingList", () => {
     expect(result).toHaveLength(2);
     expect(result[0].stitchCount).toBe(3); // red
     expect(result[1].stitchCount).toBe(1); // black
+  });
+
+  it("merges different RGBs that map to the same DMC thread", () => {
+    // Both of these dark colors should map to DMC 310 (Black: r=0, g=0, b=0)
+    const cells = [
+      { r: 0, g: 0, b: 0 }, // exact black -> DMC 310
+      { r: 1, g: 1, b: 1 }, // near-black -> DMC 310
+      { r: 2, g: 2, b: 2 }, // near-black -> DMC 310
+    ];
+    // Verify precondition: both map to same DMC
+    expect(findNearestDmc({ r: 0, g: 0, b: 0 }).code).toBe("310");
+    expect(findNearestDmc({ r: 1, g: 1, b: 1 }).code).toBe("310");
+    expect(findNearestDmc({ r: 2, g: 2, b: 2 }).code).toBe("310");
+
+    const result = generateShoppingList(cells);
+    expect(result).toHaveLength(1);
+    expect(result[0].thread.code).toBe("310");
+    expect(result[0].stitchCount).toBe(3);
   });
 });
