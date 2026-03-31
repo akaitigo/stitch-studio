@@ -25,5 +25,5 @@ clean:
 	cd wasm && cargo clean
 	cd frontend && rm -rf dist node_modules/.vite
 
-dev:
+dev: wasm
 	cd frontend && npm run dev
