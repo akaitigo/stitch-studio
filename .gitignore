@@ -27,7 +27,7 @@ Thumbs.db
 
 # Build artifacts
 *.wasm
-!wasm/pkg/*.wasm
+!frontend/src/wasm-pkg/*.wasm
 
 # Claude backup
 CLAUDE.backup.md

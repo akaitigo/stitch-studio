@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "check-wasm": "test -f src/wasm-pkg/stitch_studio_wasm_bg.wasm || (echo 'Error: WASM module not built. Run: cd ../wasm && wasm-pack build --target web --out-dir ../frontend/src/wasm-pkg' && exit 1)",
+    "check-wasm": "test -f src/wasm-pkg/stitch_studio_wasm_bg.wasm || (echo 'Error: WASM module not built. Run: make wasm (from project root)' && exit 1)",
     "predev": "npm run check-wasm",
     "prebuild": "npm run check-wasm",
     "dev": "vite",
