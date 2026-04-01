@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { GridData } from "../types/grid";
 import { isGridData } from "../types/grid";
 import { Modal } from "./Modal";
@@ -22,6 +22,15 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Revoke the previous Object URL when previewUrl changes or on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -44,7 +53,7 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
         setError(
           `Image dimensions (${img.width}x${img.height}) exceed maximum of ${MAX_DIMENSION}x${MAX_DIMENSION}.`,
         );
-        URL.revokeObjectURL(url);
+        setPreviewUrl(null);
         return;
       }
 
@@ -63,11 +72,10 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
         width: img.width,
         height: img.height,
       });
-      URL.revokeObjectURL(url);
     };
     img.onerror = () => {
       setError("Failed to load image");
-      URL.revokeObjectURL(url);
+      setPreviewUrl(null);
     };
     img.src = url;
   }, []);
