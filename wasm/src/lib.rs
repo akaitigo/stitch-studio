@@ -196,6 +196,9 @@ fn convert_image_internal(
     if grid_width == 0 || grid_height == 0 {
         return Err("Grid dimensions must be positive");
     }
+    if grid_width > 200 || grid_height > 200 {
+        return Err("Grid dimensions exceed maximum of 200x200");
+    }
 
     // Step 1: Downsample image to grid size by averaging pixel blocks
     let mut sampled_colors: Vec<GridCell> = Vec::with_capacity((grid_width * grid_height) as usize);
@@ -359,6 +362,17 @@ mod tests {
         assert_eq!(grid.cells[1].r, 255);
         assert_eq!(grid.cells[1].g, 255);
         assert_eq!(grid.cells[1].b, 255);
+    }
+
+    #[test]
+    fn test_convert_image_rejects_oversized_grid() {
+        let rgba = vec![128u8; 4 * 4 * 4]; // 4x4 RGBA
+        let result = convert_image_internal(&rgba, 4, 4, 201, 1, 4);
+        assert!(result.is_err());
+        let result = convert_image_internal(&rgba, 4, 4, 1, 201, 4);
+        assert!(result.is_err());
+        let result = convert_image_internal(&rgba, 4, 4, 200, 200, 4);
+        assert!(result.is_ok());
     }
 
     #[test]

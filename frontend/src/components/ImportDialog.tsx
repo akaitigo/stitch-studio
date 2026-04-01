@@ -86,6 +86,11 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
     setIsConverting(true);
     setError(null);
 
+    const MAX_GRID_WIDTH = 200;
+    const MAX_GRID_HEIGHT = 200;
+    const clampedWidth = Math.max(1, Math.min(gridWidth, MAX_GRID_WIDTH));
+    const clampedHeight = Math.max(1, Math.min(gridHeight, MAX_GRID_HEIGHT));
+
     try {
       const wasm = await import("../wasm-pkg/stitch_studio_wasm.js");
       await wasm.default();
@@ -94,8 +99,8 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
         imageData.rgba,
         imageData.width,
         imageData.height,
-        gridWidth,
-        gridHeight,
+        clampedWidth,
+        clampedHeight,
         maxColors,
       );
 
