@@ -37,6 +37,10 @@ export function floodFill(
   startY: number,
   newColor: Color,
 ): GridData {
+  if (startX < 0 || startX >= grid.width || startY < 0 || startY >= grid.height) {
+    return grid;
+  }
+
   const result = cloneGrid(grid);
   const targetIdx = startY * grid.width + startX;
   const targetColor = result.cells[targetIdx];

@@ -21,6 +21,16 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const loadIdRef = useRef(0);
+  const isOpenRef = useRef(true);
+
+  // Track open state for cancellation
+  useEffect(() => {
+    isOpenRef.current = true;
+    return () => {
+      isOpenRef.current = false;
+    };
+  }, []);
 
   // Revoke the previous Object URL when previewUrl changes or on unmount
   useEffect(() => {
@@ -43,12 +53,19 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
       return;
     }
 
+    // Invalidate any in-flight image load
+    const currentLoadId = ++loadIdRef.current;
+
     setError(null);
+    setImageData(null);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
 
     const img = new Image();
     img.onload = () => {
+      // Stale callback — a newer file was selected
+      if (currentLoadId !== loadIdRef.current) return;
+
       if (img.width > MAX_DIMENSION || img.height > MAX_DIMENSION) {
         setError(
           `Image dimensions (${img.width}x${img.height}) exceed maximum of ${MAX_DIMENSION}x${MAX_DIMENSION}.`,
@@ -74,6 +91,7 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
       });
     };
     img.onerror = () => {
+      if (currentLoadId !== loadIdRef.current) return;
       setError("Failed to load image");
       setPreviewUrl(null);
     };
@@ -104,12 +122,16 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
         maxColors,
       );
 
+      // Dialog was closed while WASM was running — discard result
+      if (!isOpenRef.current) return;
+
       if (!isGridData(result)) {
         setError("WASM returned invalid grid data");
         return;
       }
       onImport(result);
     } catch (err: unknown) {
+      if (!isOpenRef.current) return;
       const message = err instanceof Error ? err.message : "Conversion failed";
       setError(message);
     } finally {
