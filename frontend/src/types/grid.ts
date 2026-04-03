@@ -1,4 +1,13 @@
-/** A single RGB color (also used as grid cell) */
+/**
+ * A single RGB color (also used as grid cell).
+ *
+ * White ({r:255, g:255, b:255}) acts as the "empty" / eraser color.
+ * The eraser tool paints cells white, and white cells are treated as
+ * transparent (no stitch) when exporting patterns. A dedicated
+ * `null`-based empty representation would be cleaner but requires
+ * changes across WASM, serialization, and rendering — tracked as a
+ * future improvement.
+ */
 export interface Color {
   r: number;
   g: number;

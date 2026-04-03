@@ -104,10 +104,16 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
     setIsConverting(true);
     setError(null);
 
+    // Capture parameters at conversion start to prevent race conditions
+    // where the user changes sliders while WASM is processing
+    const capturedWidth = gridWidth;
+    const capturedHeight = gridHeight;
+    const capturedMaxColors = maxColors;
+
     const MAX_GRID_WIDTH = 200;
     const MAX_GRID_HEIGHT = 200;
-    const clampedWidth = Math.max(1, Math.min(gridWidth, MAX_GRID_WIDTH));
-    const clampedHeight = Math.max(1, Math.min(gridHeight, MAX_GRID_HEIGHT));
+    const clampedWidth = Math.max(1, Math.min(capturedWidth, MAX_GRID_WIDTH));
+    const clampedHeight = Math.max(1, Math.min(capturedHeight, MAX_GRID_HEIGHT));
 
     try {
       const wasm = await import("../wasm-pkg/stitch_studio_wasm.js");
@@ -119,11 +125,20 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
         imageData.height,
         clampedWidth,
         clampedHeight,
-        maxColors,
+        capturedMaxColors,
       );
 
       // Dialog was closed while WASM was running — discard result
       if (!isOpenRef.current) return;
+
+      // Parameters changed during conversion — discard stale result
+      if (
+        gridWidth !== capturedWidth ||
+        gridHeight !== capturedHeight ||
+        maxColors !== capturedMaxColors
+      ) {
+        return;
+      }
 
       if (!isGridData(result)) {
         setError("WASM returned invalid grid data");
@@ -193,7 +208,7 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
           <input
             type="number"
             value={maxColors}
-            onChange={(e) => setMaxColors(Number(e.target.value))}
+            onChange={(e) => setMaxColors(Math.max(2, Math.min(Number(e.target.value), 64)))}
             min={2}
             max={64}
             style={{ width: 60, marginLeft: 8 }}
