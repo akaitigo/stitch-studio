@@ -129,7 +129,10 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
       );
 
       // Dialog was closed while WASM was running — discard result
-      if (!isOpenRef.current) return;
+      if (!isOpenRef.current) {
+        setIsConverting(false);
+        return;
+      }
 
       // Parameters changed during conversion — discard stale result
       if (
@@ -137,6 +140,7 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
         gridHeight !== capturedHeight ||
         maxColors !== capturedMaxColors
       ) {
+        setIsConverting(false);
         return;
       }
 
