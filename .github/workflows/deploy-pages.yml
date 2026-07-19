@@ -36,7 +36,7 @@ jobs:
       - name: Build WASM
         working-directory: wasm
         run: |
-          command -v wasm-pack || cargo install wasm-pack --version 0.14.0 --locked
+          command -v wasm-pack || cargo +stable install wasm-pack --version 0.14.0 --locked
           wasm-pack build --target web --out-dir ../frontend/src/wasm-pkg
       - name: Install frontend dependencies
         working-directory: frontend
