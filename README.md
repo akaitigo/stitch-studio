@@ -2,6 +2,10 @@
 
 Cross-stitch pattern editor powered by Rust/WASM. Convert images into stitch patterns, edit on a grid canvas, and generate thread shopping lists with DMC color matching.
 
+**Live demo:** [akaitigo.github.io/stitch-studio](https://akaitigo.github.io/stitch-studio/)
+
+Uploaded images are processed entirely in your browser and are not sent to an external service.
+
 ![stitch-studio welcome](docs/screenshots/app.png)
 
 ![stitch-studio editor](docs/screenshots/editor.png)
